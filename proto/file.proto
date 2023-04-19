@@ -6,6 +6,7 @@ option go_package = "./pb";
 
 message ListFilesRequest {};
 message ListFilesResponse {
+  // repeated becomes slice in go file
   repeated string filenames = 1;
 }
 

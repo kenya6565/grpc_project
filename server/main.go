@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"grpc-lesson/pb"
 	"io/ioutil"
+	"log"
+	"net"
+
+	"google.golang.org/grpc"
 )
 
 type server struct {
@@ -35,4 +39,22 @@ func (*server) ListFiles(ctx context.Context, req *pb.ListFilesRequest) (*pb.Lis
 		Filenames: filenames,
 	}
 	return res, nil
+}
+
+func main() {
+	lis, err := net.Listen("tcp", "localhost:50051")
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	// get structure of grpc
+	s := grpc.NewServer()
+
+	// register structure content at grpc, which means grpc can provide methods we define
+	pb.RegisterFilesServiceServer(s, &server{})
+
+	fmt.Println("server is running")
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }
