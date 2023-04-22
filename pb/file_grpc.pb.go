@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FilesServiceClient interface {
 	ListFiles(ctx context.Context, in *ListFilesRequest, opts ...grpc.CallOption) (*ListFilesResponse, error)
+	Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (FilesService_DownloadClient, error)
 }
 
 type filesServiceClient struct {
@@ -42,11 +43,44 @@ func (c *filesServiceClient) ListFiles(ctx context.Context, in *ListFilesRequest
 	return out, nil
 }
 
+func (c *filesServiceClient) Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (FilesService_DownloadClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FilesService_ServiceDesc.Streams[0], "/file.FilesService/Download", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &filesServiceDownloadClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FilesService_DownloadClient interface {
+	Recv() (*DownloadResponse, error)
+	grpc.ClientStream
+}
+
+type filesServiceDownloadClient struct {
+	grpc.ClientStream
+}
+
+func (x *filesServiceDownloadClient) Recv() (*DownloadResponse, error) {
+	m := new(DownloadResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // FilesServiceServer is the server API for FilesService service.
 // All implementations must embed UnimplementedFilesServiceServer
 // for forward compatibility
 type FilesServiceServer interface {
 	ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error)
+	Download(*DownloadRequest, FilesService_DownloadServer) error
 	mustEmbedUnimplementedFilesServiceServer()
 }
 
@@ -56,6 +90,9 @@ type UnimplementedFilesServiceServer struct {
 
 func (UnimplementedFilesServiceServer) ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFiles not implemented")
+}
+func (UnimplementedFilesServiceServer) Download(*DownloadRequest, FilesService_DownloadServer) error {
+	return status.Errorf(codes.Unimplemented, "method Download not implemented")
 }
 func (UnimplementedFilesServiceServer) mustEmbedUnimplementedFilesServiceServer() {}
 
@@ -88,6 +125,27 @@ func _FilesService_ListFiles_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FilesService_Download_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(DownloadRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FilesServiceServer).Download(m, &filesServiceDownloadServer{stream})
+}
+
+type FilesService_DownloadServer interface {
+	Send(*DownloadResponse) error
+	grpc.ServerStream
+}
+
+type filesServiceDownloadServer struct {
+	grpc.ServerStream
+}
+
+func (x *filesServiceDownloadServer) Send(m *DownloadResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // FilesService_ServiceDesc is the grpc.ServiceDesc for FilesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -100,6 +158,12 @@ var FilesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _FilesService_ListFiles_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Download",
+			Handler:       _FilesService_Download_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/file.proto",
 }
