@@ -51,6 +51,7 @@ func main() {
 	s := grpc.NewServer()
 
 	// register structure content at grpc, which means grpc can provide methods we define
+	// this method is created automatically by protocol buffer's compile
 	pb.RegisterFilesServiceServer(s, &server{})
 
 	fmt.Println("server is running")

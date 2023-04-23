@@ -34,6 +34,7 @@ func NewFilesServiceClient(cc grpc.ClientConnInterface) FilesServiceClient {
 	return &filesServiceClient{cc}
 }
 
+// this method is created automatically by compile
 func (c *filesServiceClient) ListFiles(ctx context.Context, in *ListFilesRequest, opts ...grpc.CallOption) (*ListFilesResponse, error) {
 	out := new(ListFilesResponse)
 	err := c.cc.Invoke(ctx, "/file.FilesService/ListFiles", in, out, opts...)

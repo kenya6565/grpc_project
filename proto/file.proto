@@ -4,9 +4,20 @@ package file;
 
 option go_package = "./pb";
 
+
+// define as struct in file.pb.go
 message ListFilesRequest {};
 message ListFilesResponse {
   // repeated becomes slice in go file
+  // repeated string filenames = 1; creates 1 method
+  // func (x *ListFilesResponse) GetFilenames() []string {
+  //   if x != nil {
+  //     return x.Filenames
+  //   }
+  //   return nil
+  // }
+
+  // stcut ListFilesResponse contains method above
   repeated string filenames = 1;
 }
 
@@ -18,6 +29,8 @@ message DownloadResponse {
   bytes data = 1;
 }
 
+// define as interface in file_grpc.pb.go
+// this service name is used like RegisterFilesServiceServer and NewFilesServiceClient
 service FilesService {
   rpc ListFiles (ListFilesRequest) returns (ListFilesResponse);
   rpc Download (DownloadRequest) returns (stream DownloadResponse);
