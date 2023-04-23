@@ -10,7 +10,6 @@ import (
 )
 
 func callListFiles(client pb.FilesServiceClient) {
-	
 	res, err := client.ListFiles(context.Background(), &pb.ListFilesRequest{})
 	if err != nil {
 		log.Fatalln(err)
