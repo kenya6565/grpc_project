@@ -20,7 +20,7 @@ type server struct {
 
 func (*server) ListFiles(ctx context.Context, req *pb.ListFilesRequest) (*pb.ListFilesResponse, error) {
 	fmt.Println("ListFiles was invoked")
-	dir := "/Users/user/workspace/grpc-lesson/storage"
+	dir := "/Users/user/workspace/grpc-lesson/storage/"
 
 	paths, err := ioutil.ReadDir(dir)
 
@@ -48,7 +48,7 @@ func (*server) Download(req *pb.DownloadRequest, stream pb.FilesService_Download
 	fmt.Println("Download was invoked")
 
 	filename := req.GetFilename()
-	path := "/Users/user/workspace/grpc-lesson/storage" + filename
+	path := "/Users/user/workspace/grpc-lesson/storage/" + filename
 
 	file, err := os.Open(path)
 	if err != nil {
