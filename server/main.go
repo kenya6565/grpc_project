@@ -15,6 +15,7 @@ import (
 )
 
 type server struct {
+	// this interface allows us to use methods such as ListFiles
 	pb.UnimplementedFilesServiceServer
 }
 
