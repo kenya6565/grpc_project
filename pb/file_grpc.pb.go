@@ -45,11 +45,13 @@ func (c *filesServiceClient) ListFiles(ctx context.Context, in *ListFilesRequest
 }
 
 func (c *filesServiceClient) Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (FilesService_DownloadClient, error) {
+	// this calls Download method in server side
 	stream, err := c.cc.NewStream(ctx, &FilesService_ServiceDesc.Streams[0], "/file.FilesService/Download", opts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &filesServiceDownloadClient{stream}
+	// this process is used to send data to server side
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
