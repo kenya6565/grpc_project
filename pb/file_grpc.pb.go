@@ -91,6 +91,8 @@ type FilesServiceServer interface {
 type UnimplementedFilesServiceServer struct {
 }
 
+// these defined methods are overridden when the same name method is defined in server side
+// these defined methods are created to return clear error messages
 func (UnimplementedFilesServiceServer) ListFiles(context.Context, *ListFilesRequest) (*ListFilesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFiles not implemented")
 }
