@@ -29,9 +29,18 @@ message DownloadResponse {
   bytes data = 1;
 }
 
+message UploadRequest {
+  bytes data = 1;
+}
+
+message UploadResponse {
+  int32 size = 1;
+}
+
 // define as interface in file_grpc.pb.go
 // this service name is used like RegisterFilesServiceServer and NewFilesServiceClient
 service FilesService {
   rpc ListFiles (ListFilesRequest) returns (ListFilesResponse);
   rpc Download (DownloadRequest) returns (stream DownloadResponse);
+  rpc Upload(stream UploadRequest) returns (UploadResponse);
 }
