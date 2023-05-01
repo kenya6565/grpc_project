@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"grpc-lesson/pb"
@@ -84,6 +85,32 @@ func (*server) Download(req *pb.DownloadRequest, stream pb.FilesService_Download
 
 	}
 	return nil
+}
+
+func (*server) Upload(stream pb.FilesService_UploadServer) error {
+	fmt.Println("Upload was invoked")
+
+	var buf bytes.Buffer
+	for {
+		// get multiple requests from client
+		req, err := stream.Recv()
+		// if you get finish sign
+		if err == io.EOF {
+			// return size of received data
+			res := &pb.UploadResponse{Size: int32(buf.Len())}
+			return stream.SendAndClose(res)
+		}
+		if err != nil {
+			return err
+		}
+
+		data := req.GetData()
+		log.Printf("received data(bytes): %v", data)
+		log.Printf("received data(bytes): %v", string(data))
+
+		// write data from client in buffer
+		buf.Write(data)
+	}
 }
 
 func main() {
