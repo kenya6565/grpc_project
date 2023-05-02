@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
 	"google.golang.org/grpc"
 )
@@ -75,7 +76,21 @@ func callUpload(client pb.FilesServiceClient) {
 
 		// send request to server
 		sendErr := stream.Send(req)
+
+		if sendErr != nil {
+			log.Fatalln(sendErr)
+		}
+		time.Sleep(1 * time.Second)
 	}
+
+	// notify the end of request to server and get response from server
+	res, err := stream.CloseAndRecv()
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Printf("received data size: %v", res.GetSize())
 
 }
 
@@ -100,6 +115,8 @@ func main() {
 	// this client is FilesServiceClient type
 	client := pb.NewFilesServiceClient(conn)
 	// callListFiles(client)
-	callDownload(client)
+	// callDownload(client)
+
+	callUpload(client)
 
 }
